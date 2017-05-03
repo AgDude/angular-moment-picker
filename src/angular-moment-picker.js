@@ -224,9 +224,11 @@
 					$timeout($scope.view.position, 0, false);
 				},
 				close: function () {
-					$scope.view.isOpen = false;
-					$scope.view.selected = $scope.startView;
-					$scope.input[0].blur();
+					$timeout(function () {
+						$scope.view.isOpen = false;
+						$scope.view.selected = $scope.startView;
+						$scope.input[0].blur();
+					}, 100);
 				},
 				position: function () {
 

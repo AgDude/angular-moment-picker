@@ -225,9 +225,11 @@
 					$timeout($scope.view.position, 0, false);
 				},
 				close: function () {
-					$scope.view.isOpen = false;
-					$scope.view.selected = $scope.startView;
-					$scope.input[0].blur();
+					$timeout(function () {
+						$scope.view.isOpen = false;
+						$scope.view.selected = $scope.startView;
+						$scope.input[0].blur();
+					}, 100);
 				},
 				position: function () {
 
@@ -582,7 +584,6 @@
 			// creation
 			$scope.picker = angular.element('<span class="moment-picker"></span>');
 			angular.element(document.body).append($scope.picker);
-			// $scope.contents = $element.addClass('moment-picker-contents').removeAttr('moment-picker');
 			$scope.container = $compile($scope.template)($scope);
 			$scope.picker.append($scope.container);
 			$scope.input = $element[0].tagName.toLowerCase() != 'input' && $element[0].querySelectorAll('input').length > 0
@@ -657,7 +658,6 @@
 				if ( !$scope.valueMoment.isSame(ngModelCtrl.$modelValue) )
 					$timeout(function () {
 						$scope.view.update($scope.view.moment = $scope.valueMoment.clone());
-						// ngModelCtrl.$modelValue = $scope.valueMoment.clone();
 						modelSetter($scope.$parent, $scope.valueMoment.clone());
 						runFormatters();
 						if (angular.isFunction($scope.change))
