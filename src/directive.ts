@@ -1,6 +1,6 @@
 import * as angular from 'angular';
+import * as uib from 'angular-ui-bootstrap';
 import * as moment from 'moment';
-import { getOffset } from './helpers';
 import { IProviderOptions } from './provider';
 import { ViewString, IView, IViewItem, IDirectiveScopeInternal, IModelController } from './definitions';
 import { DecadeView, YearView, MonthView, DayView, HourView, MinuteView } from './views';
@@ -24,7 +24,7 @@ export default class Directive implements ng.IDirective {
 		minDate:     '=?',
 		maxDate:     '=?',
 		startDate:   '=?',
-		disabled:    '=?disable',
+		disabled:    '=?ngDisabled',
 		position:    '@?',
 		inline:      '@?',
 		validate:    '=?',
@@ -45,6 +45,7 @@ export default class Directive implements ng.IDirective {
 		private $log: ng.ILogService,
 		private $window: ng.IWindowService,
 		private provider: IProviderOptions,
+		private $position: uib.IPositionService,
 		private $compile: ng.ICompileService,
 		private $templateCache: ng.ITemplateCacheService) { }
 
@@ -169,17 +170,11 @@ export default class Directive implements ng.IDirective {
 				},
 				position: () => {
 					if (!$scope.view.isOpen || $scope.position || $scope.inline) return;
-					$scope.picker.removeClass('top').removeClass('right');
 
-					let container = $scope.container[0],
-						offset = getOffset(container),
-						top = offset.top - this.$window.pageYOffset,
-						left = offset.left - this.$window.pageXOffset,
-						winWidth = this.$window.innerWidth,
-						winHeight = this.$window.innerHeight;
-
-					if (top + this.$window.pageYOffset - container.offsetHeight > 0 && top > winHeight / 2) $scope.picker.addClass('top');
-					if (left + container.offsetWidth > winWidth) $scope.picker.addClass('right');
+					var position = this.$position.positionElements($element, $scope.picker, 'bottom-left', true);
+					$scope.picker.css('top', position.top + 'px');
+					$scope.picker.css('left', position.left + 'px');
+					$scope.picker.css('position', 'absolute');
 				},
 				keydown: (e) => {
 					let view: IView = $scope.views[$scope.view.selected],
@@ -278,15 +273,23 @@ export default class Directive implements ng.IDirective {
 			};
 
 			// creation
-			$scope.picker = angular.element($element[0].querySelectorAll('.moment-picker'));
-			$element.after($scope.picker);
-			$scope.contents = angular.element($scope.picker[0].querySelectorAll('.moment-picker-contents'));
-			$scope.container = angular.element($scope.picker[0].querySelectorAll('.moment-picker-container'));
-			$scope.contents.append($element.append($transElement));
-			$scope.input = $scope.contents[0].tagName.toLowerCase() != 'input' && $scope.contents[0].querySelectorAll('input').length > 0
-				? angular.element($scope.contents[0].querySelectorAll('input'))
-				: angular.element($scope.contents[0]);
+			$scope.picker = angular.element('<span class="moment-picker"></span>');
+			angular.element(document.body).append($scope.picker);
+
+			$scope.container = this.$compile(templateHtml)($scope);
+			$scope.picker.append($scope.container);
+
+			// $scope.contents = angular.element($scope.picker[0].querySelectorAll('.moment-picker-contents'));
+			// $scope.contents.append($element.append($transElement));
+			//
+			// $scope.input = $scope.contents[0].tagName.toLowerCase() != 'input' && $scope.contents[0].querySelectorAll('input').length > 0
+			// 	? angular.element($scope.contents[0].querySelectorAll('input'))
+			// 	: angular.element($scope.contents[0]);
+			$scope.input = $element[0].tagName.toLowerCase() != 'input' && $element[0].querySelectorAll('input').length > 0
+				? angular.element($element[0].querySelectorAll('input'))
+				: $element;
 			$scope.input.addClass('moment-picker-input').attr('tabindex', 0);
+
 			($scope.position || '').split(' ').forEach((className: string) => $scope.picker.addClass(className));
 
 			// transclude scope to template additions
@@ -412,15 +415,16 @@ export default class Directive implements ng.IDirective {
 				.on('keydown',     (e) => {
 					if ($scope.keyboard) $scope.$evalAsync(() => $scope.view.keydown(e));
 				});
-			$scope.contents.on('click', () => focusInput());
+			$scope.container.on('click', () => focusInput());
 			$scope.container.on('mousedown', (e: JQueryEventObject) => focusInput(e));
 			angular.element(this.$window).on('resize scroll', $scope.view.position);
 
 			// unbind events on destroy
 			$scope.$on('$destroy', () => {
 				$scope.input.off('focus click blur keydown');
-				$scope.contents.off('click');
+				$scope.container.off('click');
 				$scope.container.off('mousedown');
+				$scope.picker.remove();
 				angular.element(this.$window).off('resize scroll', $scope.view.position);
 			});
 		});

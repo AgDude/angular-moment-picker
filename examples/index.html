@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://ogp.me/ns#" xmlns:fb="http://www.facebook.com/2008/fbml" ng-app="momentPickerExample">
+	<head>
+		<!-- Open Graph Meta Tags -->
+		<!-- Stylesheets -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../dist/angular-moment-picker.min.css">
+		<link rel="stylesheet" href="style.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
+		<script src="../dist/angular-moment-picker.js"></script>
+		<script src="script.js"></script>
+	</head>
+	<body ng-controller="mainCtrl">
+		<h2>Angular Moment Picker examples</h2>
+		<div class="container">
+			<input class="form-control">
+			<input class="form-control" ng-model="data.one" moment-picker><span>{{ data.one | moment:fullDate }}</span>
+			<input class="form-control" ng-model="data.time" moment-picker time-only-moment> <span>{{ data.time | moment:fullDate  }}</span>
+
+			<br>
+			<button class="btn btn-positive" ng-click="openModal()">Open Modal</button>
+		</div>
+
+  </body>
+</html>
