@@ -168,6 +168,7 @@
 	            minView: '@?',
 	            maxView: '@?',
 	            startView: '@?',
+	            headerFormat: '@?',
 	            minDate: '=?',
 	            maxDate: '=?',
 	            startDate: '=?',
@@ -767,7 +768,7 @@
 	            month.add(1, 'months');
 	        });
 	        // return title
-	        return this.$scope.view.moment.format('YYYY');
+	        return this.$scope.view.moment.format(this.$scope.headerFormat || 'YYYY');
 	    };
 	    YearView.prototype.set = function (month) {
 	        if (!month.selectable)
@@ -826,7 +827,7 @@
 	        // render headers
 	        this.headers = moment.weekdays().map(function (d, i) { return moment().locale(_this.$scope.locale).startOf('week').add(i, 'day').format('dd'); });
 	        // return title
-	        return this.$scope.view.moment.format('MMMM YYYY');
+	        return this.$scope.view.moment.format(this.$scope.headerFormat || 'MMMM YYYY');
 	    };
 	    MonthView.prototype.set = function (day) {
 	        if (!day.selectable)
@@ -878,7 +879,7 @@
 	            hour.add(1, 'hours');
 	        }
 	        // return title
-	        return this.$scope.view.moment.format('LL');
+	        return this.$scope.view.moment.format(this.$scope.headerFormat || 'LL');
 	    };
 	    DayView.prototype.set = function (hour) {
 	        if (!hour.selectable)
@@ -936,7 +937,7 @@
 	        if (this.$scope.keyboard)
 	            this.highlightClosest();
 	        // return title
-	        return this.$scope.view.moment.clone().startOf('hour').format('lll');
+	        return this.$scope.view.moment.clone().startOf('hour').format(this.$scope.headerFormat || 'lll');
 	    };
 	    HourView.prototype.set = function (minute) {
 	        if (!minute.selectable)
@@ -1013,7 +1014,7 @@
 	        if (this.$scope.keyboard)
 	            this.highlightClosest();
 	        // return title
-	        return this.$scope.view.moment.clone().startOf('minute').format('lll');
+	        return this.$scope.view.moment.clone().startOf('minute').format(this.$scope.headerFormat || 'lll');
 	    };
 	    MinuteView.prototype.set = function (second) {
 	        if (!second.selectable)

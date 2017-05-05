@@ -21,6 +21,7 @@ export default class Directive implements ng.IDirective {
 		minView:     '@?',
 		maxView:     '@?',
 		startView:   '@?',
+		headerFormat:'@?',
 		minDate:     '=?',
 		maxDate:     '=?',
 		startDate:   '=?',

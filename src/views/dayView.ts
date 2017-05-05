@@ -36,7 +36,7 @@ export default class DayView implements IView {
 			hour.add(1, 'hours');
 		}
 		// return title
-		return this.$scope.view.moment.format('LL');
+		return this.$scope.view.moment.format(this.$scope.headerFormat || 'LL');
 	}
 
 	public set(hour: IViewItem): void {
