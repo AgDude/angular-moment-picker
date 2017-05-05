@@ -159,7 +159,6 @@
 	        this.restrict = 'AE';
 	        this.require = '?ngModel';
 	        this.scope = {
-	            value: '=?momentPicker',
 	            model: '=?ngModel',
 	            locale: '@?',
 	            format: '@?',
@@ -447,8 +446,6 @@
 	            // model controller is initialized after linking function
 	            _this.$timeout(function () {
 	                if ($attrs['ngModel']) {
-	                    if (!$ctrl.$modelValue && $scope.value)
-	                        $ctrl.$setViewValue($scope.value);
 	                    $ctrl.$commitViewValue();
 	                    $ctrl.$render();
 	                }
@@ -463,26 +460,14 @@
 	            // model <-> view conversion
 	            if ($attrs['ngModel']) {
 	                $ctrl.$parsers.push(function (viewValue) {
-	                    utility_1.updateMoment($ctrl.$modelValue, utility_1.valueToMoment(viewValue, $scope), $scope) || true;
+	                    return utility_1.updateMoment($ctrl.$modelValue, utility_1.valueToMoment(viewValue, $scope), $scope) || true;
 	                });
 	                $ctrl.$formatters.push(function (modelValue) { return utility_1.momentToValue(modelValue, $scope.format) || ''; });
-	                $ctrl.$viewChangeListeners.push(function () {
-	                    if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) {
-	                        $scope.value = $ctrl.$viewValue;
-	                    }
-	                });
 	                $ctrl.$validators.minDate = function (value) { return $scope.validate || !utility_1.isValidMoment(value) || $scope.limits.isAfterOrEqualMin(value); };
 	                $ctrl.$validators.maxDate = function (value) { return $scope.validate || !utility_1.isValidMoment(value) || $scope.limits.isBeforeOrEqualMax(value); };
 	            }
 	            // properties listeners
-	            if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) {
-	                $scope.$watch('value', function (newValue, oldValue) {
-	                    if (newValue !== oldValue)
-	                        utility_1.setValue(newValue, $scope, $ctrl, $attrs);
-	                });
-	            }
 	            $scope.$watch(function () { return utility_1.momentToValue($ctrl.$modelValue, $scope.format); }, function (newViewValue, oldViewValue) {
-	                // Model set to true before here
 	                if (newViewValue == oldViewValue)
 	                    return;
 	                var newModelValue = utility_1.valueToMoment(newViewValue, $scope);
@@ -497,7 +482,6 @@
 	                }
 	            });
 	            $scope.$watch(function () { return $ctrl.$modelValue && $ctrl.$modelValue.valueOf(); }, function () {
-	                // This fires after the above watcher (where model is already set to "true")
 	                var viewMoment = (utility_1.isValidMoment($ctrl.$modelValue) ? $ctrl.$modelValue : moment().locale($scope.locale)).clone();
 	                if (!viewMoment.isSame($scope.view.moment)) {
 	                    $scope.view.moment = viewMoment;
@@ -710,8 +694,6 @@
 	    var modelValue = exports.isValidMoment(value) ? value.clone() : exports.valueToMoment(value, $scope), viewValue = exports.momentToValue(modelValue, $scope.format);
 	    exports.updateMoment($scope.model, modelValue, $scope);
 	    exports.updateMoment($ctrl.$modelValue, modelValue, $scope);
-	    if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker'])
-	        $scope.value = viewValue;
 	    if ($attrs['ngModel']) {
 	        $ctrl.$setViewValue(viewValue);
 	        $ctrl.$render(); // render input value

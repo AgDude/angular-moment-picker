@@ -17,20 +17,27 @@
 	<body ng-controller="mainCtrl">
 		<h2>Angular Moment Picker examples</h2>
 		<div class="container">
-			<input class="form-control" ng-model="data.one" moment-picker><span>{{ data.one | moment:fullDate }}</span>
+			<!--<input class="form-control" ng-model="data.one" moment-picker><span>{{ data.one | moment:fullDate }}</span>-->
 			<!--<input class="form-control" ng-model="data.time" moment-picker time-only-moment> <span>{{ data.time | moment:fullDate  }}</span>-->
-			<input class="form-control" ng-model="data.time" moment-picker min-view="day" max-view="hour" format="h:mm A"> <span>{{ data.time | moment:fullDate  }}</span>
+			<input type="text"
+						 class="form-control"
+						 ng-model="data.time"
+						 moment-picker ="data.time"
+						 min-view="day" max-view="hour"
+						 format="h:mm A"
+			>
+			<span>{{ data.time | moment:fullDate  }}</span>
 
 			<br>
-			<input class="form-control" ng-model="data.two"
-						 moment-picker
-						 style="margin-left: 350px; width: 80px;"
-			><span>{{ data.two | moment:fullDate }}</span>
-			<br>
-			<span>is truthy: {{ !!data.two }}</span>
+			<!--<input class="form-control" ng-model="data.two"-->
+						 <!--moment-picker-->
+						 <!--style="margin-left: 350px; width: 80px;"-->
+			<!--&gt;<span>{{ data.two | moment:fullDate }}</span>-->
+			<!--<br>-->
+			<!--<span>is truthy: {{ !!data.two }}</span>-->
 
-			<br>
-			<button class="btn btn-positive" ng-click="openModal()">Open Modal</button>
+			<!--<br>-->
+			<!--<button class="btn btn-positive" ng-click="openModal()">Open Modal</button>-->
 		</div>
 
   </body>

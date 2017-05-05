@@ -12,7 +12,6 @@ export default class Directive implements ng.IDirective {
 	public restrict   = 'AE';
 	public require    = '?ngModel';
 	public scope      = {
-		value:       '=?momentPicker',
 		model:       '=?ngModel',
 		locale:      '@?',
 		format:      '@?',
@@ -306,7 +305,6 @@ export default class Directive implements ng.IDirective {
 			// model controller is initialized after linking function
 			this.$timeout(() => {
 				if ($attrs['ngModel']) {
-					if (!$ctrl.$modelValue && $scope.value) $ctrl.$setViewValue($scope.value);
 					$ctrl.$commitViewValue();
 					$ctrl.$render();
 				}
@@ -320,26 +318,15 @@ export default class Directive implements ng.IDirective {
 			// model <-> view conversion
 			if ($attrs['ngModel']) {
 				$ctrl.$parsers.push((viewValue) => {
-					updateMoment($ctrl.$modelValue, valueToMoment(viewValue, $scope), $scope) || true
+					return updateMoment($ctrl.$modelValue, valueToMoment(viewValue, $scope), $scope) || true
 				});
 				$ctrl.$formatters.push((modelValue) => momentToValue(modelValue, $scope.format) || '');
-				$ctrl.$viewChangeListeners.push(() => {
-					if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']){
-						$scope.value = $ctrl.$viewValue;
-					}
-				});
 				$ctrl.$validators.minDate = (value) => $scope.validate || !isValidMoment(value) || $scope.limits.isAfterOrEqualMin(value);
 				$ctrl.$validators.maxDate = (value) => $scope.validate || !isValidMoment(value) || $scope.limits.isBeforeOrEqualMax(value);
 			}
 
 			// properties listeners
-			if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) {
-				$scope.$watch('value', (newValue: string, oldValue: string) => {
-					if (newValue !== oldValue) setValue(newValue, $scope, $ctrl, $attrs);
-				});
-			}
 			$scope.$watch(() => momentToValue($ctrl.$modelValue, $scope.format), (newViewValue, oldViewValue) => {
-				// Model set to true before here
 				if (newViewValue == oldViewValue) return;
 
 				let newModelValue = valueToMoment(newViewValue, $scope);
@@ -354,7 +341,6 @@ export default class Directive implements ng.IDirective {
 				}
 			});
 			$scope.$watch(() => $ctrl.$modelValue && $ctrl.$modelValue.valueOf(), () => {
-				// This fires after the above watcher (where model is already set to "true")
 				let viewMoment = (isValidMoment($ctrl.$modelValue) ? $ctrl.$modelValue : moment().locale($scope.locale)).clone();
 				if (!viewMoment.isSame($scope.view.moment)) {
 					$scope.view.moment = viewMoment;

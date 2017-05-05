@@ -46,7 +46,6 @@ export const setValue = (value: moment.Moment | Value, $scope: IDirectiveScopeIn
 		viewValue = momentToValue(modelValue, $scope.format);
 	updateMoment($scope.model, modelValue, $scope);
 	updateMoment($ctrl.$modelValue, modelValue, $scope);
-	if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) $scope.value = viewValue;
 	if ($attrs['ngModel']) {
 		$ctrl.$setViewValue(viewValue);
 		$ctrl.$render(); // render input value

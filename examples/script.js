@@ -26,32 +26,32 @@ angular.module('momentPickerExample', [
       return value.format(format);
     };
   })
-  .directive('timeOnlyMoment', function ($compile) {
-    return {
-      require: 'ngModel',
-      priority: 1,
-      terminal: true,
-      link: {
-        pre: function (scope, element, attrs, ngModelCtrl) {
-          element.removeAttr('time-only-moment');
-          element.attr('format', 'hh:mm');
-          element.attr('header-format', 'hh:mm A');
-          element.attr('start-view', 'day');
-          element.attr('min-view', 'day');
-          element.attr('max-view', 'hour');
-
-          $compile(element)(scope);
-
-          scope.$watch(attrs.ngModel, function (model) {
-            if (moment.isMoment(model) && (!model._f || !model.isUTC ) ) {
-              model._f = 'hh:mm';
-              model.isUTC = true;
-            }
-          });
-        }
-      }
-    };
-  })
+  // .directive('timeOnlyMoment', function ($compile) {
+  //   return {
+  //     require: 'ngModel',
+  //     priority: 1,
+  //     terminal: true,
+  //     link: {
+  //       pre: function (scope, element, attrs, ngModelCtrl) {
+  //         element.removeAttr('time-only-moment');
+  //         element.attr('format', 'hh:mm');
+  //         element.attr('header-format', 'hh:mm A');
+  //         element.attr('start-view', 'day');
+  //         element.attr('min-view', 'day');
+  //         element.attr('max-view', 'hour');
+  //
+  //         $compile(element)(scope);
+  //
+  //         scope.$watch(attrs.ngModel, function (model) {
+  //           if (moment.isMoment(model) && (!model._f || !model.isUTC ) ) {
+  //             model._f = 'hh:mm';
+  //             model.isUTC = true;
+  //           }
+  //         });
+  //       }
+  //     }
+  //   };
+  // })
   .controller('mainCtrl', function($scope, $modal){
     $scope.fullDate = 'YYYY-MM-DD HH:mm:ss';
     $scope.data = {
