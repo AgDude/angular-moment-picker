@@ -176,6 +176,14 @@ export default class Directive implements ng.IDirective {
 					$scope.picker.css('top', position.top + 'px');
 					$scope.picker.css('left', position.left + 'px');
 					$scope.picker.css('position', 'absolute');
+					// Set the z-index based on the input, so it can be used in a modal, and a modal will cover it aslo
+					var zIndex = 0,
+						el = $element;
+					while (el[0].tagName !== 'BODY' && !el.css('z-index')  ){
+						el = el.parent();
+						zIndex = el.css('z-index') || 0;
+					}
+					$scope.picker.css('z-index', zIndex);
 				},
 				keydown: (e) => {
 					let view: IView = $scope.views[$scope.view.selected],
