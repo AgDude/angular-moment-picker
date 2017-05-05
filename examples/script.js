@@ -56,6 +56,7 @@ angular.module('momentPickerExample', [
     $scope.fullDate = 'YYYY-MM-DD HH:mm:ss';
     $scope.data = {
       one: new moment(),
+      two: null,
       time: new moment()
     };
 

@@ -11,8 +11,6 @@ const templateHtml = require('./template.tpl.html');
 export default class Directive implements ng.IDirective {
 	public restrict   = 'AE';
 	public require    = '?ngModel';
-	public transclude = true;
-	public template   = templateHtml;
 	public scope      = {
 		value:       '=?momentPicker',
 		model:       '=?ngModel',
@@ -50,8 +48,7 @@ export default class Directive implements ng.IDirective {
 		private $compile: ng.ICompileService,
 		private $templateCache: ng.ITemplateCacheService) { }
 
-	public link = ($scope: IDirectiveScopeInternal, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes, $ctrl: IModelController, $transclude: ng.ITranscludeFunction) => {
-		$transclude(($transElement: ng.IAugmentedJQuery) => {
+	public link = ($scope: IDirectiveScopeInternal, $element: ng.IAugmentedJQuery, $attrs: ng.IAttributes, $ctrl: IModelController) => {
 			// one-way binding attributes
 			angular.forEach([
 				'locale', 'format', 'minView', 'maxView', 'startView', 'position', 'inline', 'validate', 'autoclose', 'setOnSelect', 'today',
@@ -168,6 +165,10 @@ export default class Directive implements ng.IDirective {
 					if (!$scope.view.isOpen || $scope.position || $scope.inline) return;
 
 					let position = this.$position.positionElements($element, $scope.picker, 'bottom-left', true);
+					let pickerWidth = $scope.picker[0].querySelector('.moment-picker-container').offsetWidth;
+					if ( position.left + pickerWidth > document.body.offsetWidth ){
+						position.left = Math.max(0, document.body.offsetWidth - pickerWidth);
+					}
 					$scope.picker.css('top', position.top + 'px');
 					$scope.picker.css('left', position.left + 'px');
 					$scope.picker.css('position', 'absolute');
@@ -261,7 +262,7 @@ export default class Directive implements ng.IDirective {
 					let nextView = $scope.views.all.indexOf(view),
 						minView  = $scope.views.all.indexOf($scope.minView),
 						maxView  = $scope.views.all.indexOf($scope.maxView);
-					
+
 					const update = () => {
 						setValue($scope.view.moment, $scope, $ctrl, $attrs);
 						$scope.view.update();
@@ -278,18 +279,12 @@ export default class Directive implements ng.IDirective {
 
 			// creation
 			$scope.picker = angular.element('<span class="moment-picker"></span>');
-			angular.element(document.body).append($scope.picker);
-
 			$scope.container = this.$compile(templateHtml)($scope);
 			$scope.picker.append($scope.container);
 
-			// $scope.contents = angular.element($scope.picker[0].querySelectorAll('.moment-picker-contents'));
-			// $scope.contents.append($element.append($transElement));
-			//
-			// $scope.input = $scope.contents[0].tagName.toLowerCase() != 'input' && $scope.contents[0].querySelectorAll('input').length > 0
-			// 	? angular.element($scope.contents[0].querySelectorAll('input'))
-			// 	: angular.element($scope.contents[0]);
-			$scope.input = $element[0].tagName.toLowerCase() != 'input' && $element[0].querySelectorAll('input').length > 0
+			angular.element(document.body).append($scope.picker);
+
+			$scope.input = $element[0].tagName.toLowerCase() != 'inpu♦t' && $element[0].querySelectorAll('input').length > 0
 				? angular.element($element[0].querySelectorAll('input'))
 				: $element;
 			$scope.input.addClass('moment-picker-input').attr('tabindex', 0);
@@ -299,10 +294,9 @@ export default class Directive implements ng.IDirective {
 			// transclude scope to template additions
 			this.$timeout(() => {
 				angular.forEach($scope.additions || {}, (tempalteUrl: string, key: 'top' | 'bottom') => {
-					let placeholder = angular.element($scope.container[0].querySelector('.moment-picker-addition.' + key));
 					let template = this.$templateCache.get<string>(tempalteUrl);
 					let compiled = this.$compile(template)($scope.$parent);
-					placeholder.append(compiled);
+					$scope.picker[0].querySelector('.moment-picker-addition.' + key).append(compiled);
 				});
 			});
 
@@ -325,20 +319,27 @@ export default class Directive implements ng.IDirective {
 
 			// model <-> view conversion
 			if ($attrs['ngModel']) {
-				$ctrl.$parsers.push((viewValue) => updateMoment($ctrl.$modelValue, valueToMoment(viewValue, $scope), $scope) || true);
+				$ctrl.$parsers.push((viewValue) => {
+					updateMoment($ctrl.$modelValue, valueToMoment(viewValue, $scope), $scope) || true
+				});
 				$ctrl.$formatters.push((modelValue) => momentToValue(modelValue, $scope.format) || '');
-				$ctrl.$viewChangeListeners.push(() => { if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) $scope.value = $ctrl.$viewValue; });
+				$ctrl.$viewChangeListeners.push(() => {
+					if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']){
+						$scope.value = $ctrl.$viewValue;
+					}
+				});
 				$ctrl.$validators.minDate = (value) => $scope.validate || !isValidMoment(value) || $scope.limits.isAfterOrEqualMin(value);
 				$ctrl.$validators.maxDate = (value) => $scope.validate || !isValidMoment(value) || $scope.limits.isBeforeOrEqualMax(value);
 			}
 
 			// properties listeners
 			if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) {
-				$scope.$watch('value', (newValue: string, oldValue: string) => {
+				$scope.$watch('value', (newValue: string, oldValue: string) => {♦
 					if (newValue !== oldValue) setValue(newValue, $scope, $ctrl, $attrs);
 				});
 			}
 			$scope.$watch(() => momentToValue($ctrl.$modelValue, $scope.format), (newViewValue, oldViewValue) => {
+				// Model set to true before here
 				if (newViewValue == oldViewValue) return;
 
 				let newModelValue = valueToMoment(newViewValue, $scope);
@@ -353,6 +354,7 @@ export default class Directive implements ng.IDirective {
 				}
 			});
 			$scope.$watch(() => $ctrl.$modelValue && $ctrl.$modelValue.valueOf(), () => {
+				// This fires after the above watcher (where model is already set to "true")
 				let viewMoment = (isValidMoment($ctrl.$modelValue) ? $ctrl.$modelValue : moment().locale($scope.locale)).clone();
 				if (!viewMoment.isSame($scope.view.moment)) {
 					$scope.view.moment = viewMoment;
@@ -432,6 +434,5 @@ export default class Directive implements ng.IDirective {
 				$scope.picker.remove();
 				angular.element(this.$window).off('resize scroll', $scope.view.position);
 			});
-		});
 	}
 }
