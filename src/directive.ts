@@ -117,7 +117,6 @@ export default class Directive implements ng.IDirective {
 							/* formats: s,ss,S,SS,SSS..,X,LTS */
 				},
 				detectMinMax: () => {
-					$scope.detectedMinView = $scope.detectedMaxView = undefined;
 					if (!$scope.format) return;
 
 					let minView, maxView;
@@ -133,12 +132,8 @@ export default class Directive implements ng.IDirective {
 					if (!angular.isDefined(maxView)) maxView = $scope.views.all.length - 1;
 					else maxView = Math.min($scope.views.all.length - 1, $scope.views.all.indexOf(maxView));
 
-					if (minView > $scope.views.all.indexOf($scope.minView)) $scope.minView = $scope.views.all[minView];
-					if (maxView < $scope.views.all.indexOf($scope.maxView)) $scope.maxView = $scope.views.all[maxView];
-
-					// save detected min/max view to use them to update the model value properly
-					$scope.detectedMinView = $scope.views.all[minView];
-					$scope.detectedMaxView = $scope.views.all[maxView];
+					if ( !$scope.views.all.includes($scope.minView) ) $scope.minView = $scope.views.all[minView];
+					if ( !$scope.views.all.includes($scope.maxView) ) $scope.maxView = $scope.views.all[maxView];
 				},
 				// specific views
 				decade:	new DecadeView	($scope, $ctrl, this.provider),
@@ -332,16 +327,17 @@ export default class Directive implements ng.IDirective {
 			if ($attrs['ngModel']) {
 				$ctrl.$parsers.push((viewValue) => updateMoment($ctrl.$modelValue, valueToMoment(viewValue, $scope), $scope) || true);
 				$ctrl.$formatters.push((modelValue) => momentToValue(modelValue, $scope.format) || '');
-				$ctrl.$viewChangeListeners.push(() => { if ($attrs['ngModel'] != $attrs['momentPicker']) $scope.value = $ctrl.$viewValue; });
+				$ctrl.$viewChangeListeners.push(() => { if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) $scope.value = $ctrl.$viewValue; });
 				$ctrl.$validators.minDate = (value) => $scope.validate || !isValidMoment(value) || $scope.limits.isAfterOrEqualMin(value);
 				$ctrl.$validators.maxDate = (value) => $scope.validate || !isValidMoment(value) || $scope.limits.isBeforeOrEqualMax(value);
 			}
 
 			// properties listeners
-			if ($attrs['ngModel'] != $attrs['momentPicker'])
+			if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) {
 				$scope.$watch('value', (newValue: string, oldValue: string) => {
 					if (newValue !== oldValue) setValue(newValue, $scope, $ctrl, $attrs);
 				});
+			}
 			$scope.$watch(() => momentToValue($ctrl.$modelValue, $scope.format), (newViewValue, oldViewValue) => {
 				if (newViewValue == oldViewValue) return;
 

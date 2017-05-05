@@ -261,7 +261,6 @@
 	                        /* formats: s,ss,S,SS,SSS..,X,LTS */
 	                    },
 	                    detectMinMax: function () {
-	                        $scope.detectedMinView = $scope.detectedMaxView = undefined;
 	                        if (!$scope.format)
 	                            return;
 	                        var minView, maxView;
@@ -281,13 +280,10 @@
 	                            maxView = $scope.views.all.length - 1;
 	                        else
 	                            maxView = Math.min($scope.views.all.length - 1, $scope.views.all.indexOf(maxView));
-	                        if (minView > $scope.views.all.indexOf($scope.minView))
+	                        if (!$scope.views.all.includes($scope.minView))
 	                            $scope.minView = $scope.views.all[minView];
-	                        if (maxView < $scope.views.all.indexOf($scope.maxView))
+	                        if (!$scope.views.all.includes($scope.maxView))
 	                            $scope.maxView = $scope.views.all[maxView];
-	                        // save detected min/max view to use them to update the model value properly
-	                        $scope.detectedMinView = $scope.views.all[minView];
-	                        $scope.detectedMaxView = $scope.views.all[maxView];
 	                    },
 	                    // specific views
 	                    decade: new views_1.DecadeView($scope, $ctrl, _this.provider),
@@ -474,17 +470,18 @@
 	                if ($attrs['ngModel']) {
 	                    $ctrl.$parsers.push(function (viewValue) { return utility_1.updateMoment($ctrl.$modelValue, utility_1.valueToMoment(viewValue, $scope), $scope) || true; });
 	                    $ctrl.$formatters.push(function (modelValue) { return utility_1.momentToValue(modelValue, $scope.format) || ''; });
-	                    $ctrl.$viewChangeListeners.push(function () { if ($attrs['ngModel'] != $attrs['momentPicker'])
+	                    $ctrl.$viewChangeListeners.push(function () { if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker'])
 	                        $scope.value = $ctrl.$viewValue; });
 	                    $ctrl.$validators.minDate = function (value) { return $scope.validate || !utility_1.isValidMoment(value) || $scope.limits.isAfterOrEqualMin(value); };
 	                    $ctrl.$validators.maxDate = function (value) { return $scope.validate || !utility_1.isValidMoment(value) || $scope.limits.isBeforeOrEqualMax(value); };
 	                }
 	                // properties listeners
-	                if ($attrs['ngModel'] != $attrs['momentPicker'])
+	                if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) {
 	                    $scope.$watch('value', function (newValue, oldValue) {
 	                        if (newValue !== oldValue)
 	                            utility_1.setValue(newValue, $scope, $ctrl, $attrs);
 	                    });
+	                }
 	                $scope.$watch(function () { return utility_1.momentToValue($ctrl.$modelValue, $scope.format); }, function (newViewValue, oldViewValue) {
 	                    if (newViewValue == oldViewValue)
 	                        return;
@@ -701,7 +698,7 @@
 	        momentValue = moment(formattedValue, $scope.format, $scope.locale);
 	    if ($scope.model) {
 	        // set value for each view precision (from Decade View to minView)
-	        var views = $scope.views.all.slice(0, $scope.views.all.indexOf($scope.detectedMinView));
+	        var views = $scope.views.all.slice(0, $scope.views.all.indexOf($scope.minView));
 	        angular.forEach(views, function (view) {
 	            var precision = $scope.views.precisions[view];
 	            momentValue[precision]($scope.model[precision]());
@@ -713,7 +710,7 @@
 	    var modelValue = exports.isValidMoment(value) ? value.clone() : exports.valueToMoment(value, $scope), viewValue = exports.momentToValue(modelValue, $scope.format);
 	    exports.updateMoment($scope.model, modelValue, $scope);
 	    exports.updateMoment($ctrl.$modelValue, modelValue, $scope);
-	    if ($attrs['ngModel'] != $attrs['momentPicker'])
+	    if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker'])
 	        $scope.value = viewValue;
 	    if ($attrs['ngModel']) {
 	        $ctrl.$setViewValue(viewValue);
@@ -726,7 +723,7 @@
 	    else {
 	        if (!model.isSame(value)) {
 	            // set value for each view precision (from Decade View to maxView)
-	            var views = $scope.views.all.slice(0, $scope.views.all.indexOf($scope.detectedMaxView) + 1);
+	            var views = $scope.views.all.slice(0, $scope.views.all.indexOf($scope.maxView) + 1);
 	            angular.forEach(views, function (view) {
 	                var precision = $scope.views.precisions[view];
 	                model[precision](value[precision]());
