@@ -428,7 +428,7 @@
 	            $scope.container = _this.$compile(templateHtml)($scope);
 	            $scope.picker.append($scope.container);
 	            angular.element(document.body).append($scope.picker);
-	            $scope.input = $element[0].tagName.toLowerCase() != 'inpu♦t' && $element[0].querySelectorAll('input').length > 0
+	            $scope.input = $element[0].tagName.toLowerCase() != 'input' && $element[0].querySelectorAll('input').length > 0
 	                ? angular.element($element[0].querySelectorAll('input'))
 	                : $element;
 	            $scope.input.addClass('moment-picker-input').attr('tabindex', 0);

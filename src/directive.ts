@@ -284,7 +284,7 @@ export default class Directive implements ng.IDirective {
 
 			angular.element(document.body).append($scope.picker);
 
-			$scope.input = $element[0].tagName.toLowerCase() != 'inpu♦t' && $element[0].querySelectorAll('input').length > 0
+			$scope.input = $element[0].tagName.toLowerCase() != 'input' && $element[0].querySelectorAll('input').length > 0
 				? angular.element($element[0].querySelectorAll('input'))
 				: $element;
 			$scope.input.addClass('moment-picker-input').attr('tabindex', 0);
@@ -334,7 +334,7 @@ export default class Directive implements ng.IDirective {
 
 			// properties listeners
 			if ($attrs['momentPicker'] && $attrs['ngModel'] != $attrs['momentPicker']) {
-				$scope.$watch('value', (newValue: string, oldValue: string) => {♦
+				$scope.$watch('value', (newValue: string, oldValue: string) => {
 					if (newValue !== oldValue) setValue(newValue, $scope, $ctrl, $attrs);
 				});
 			}
