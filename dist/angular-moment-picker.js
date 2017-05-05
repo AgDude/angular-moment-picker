@@ -331,7 +331,7 @@
 	                            el = el.parent();
 	                            zIndex = el.css('z-index') || 0;
 	                        }
-	                        $scope.picker.css('z-index', zIndex);
+	                        $scope.picker.css('z-index', parseInt(zIndex) + 5);
 	                    },
 	                    keydown: function (e) {
 	                        var view = $scope.views[$scope.view.selected], precision = $scope.views.precisions[$scope.view.selected].replace('date', 'day'), singleUnit = _this.provider[precision + 'sStep'] || 1, operation = [utility_1.KEYS.up, utility_1.KEYS.left].indexOf(e.keyCode) >= 0 ? 'subtract' : 'add', highlight = function (vertical) {
